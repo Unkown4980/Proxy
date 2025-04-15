@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better Proxy</title>
+    <script id="importantscript">
+
+        async function do_the_thing(url) {
+
+            try {
+                const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} while fetching https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)} (${url})`);
+                }
+
+                const data = await response.text();
+
+                if (data.toLowerCase().includes('<!doctype html')) {
+                    document.body.innerHTML = data;
+
+                    const script = document.createElement('script');
+                    script.src = 'otherhandling.js';
+                    document.head.appendChild(script);
+
+                } else {
+                    throw new Error(`Unexpected response format (${response.text})`);
+                }   
+
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
