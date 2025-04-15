@@ -5,38 +5,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Better Proxy</title>
-    <script>
-
+    <script id="importantscript">
         async function handleSubmit() {
-            const input = document.getElementById('userInput');
-            const value = input.value;
+            do_the_thing(document.getElementById('userInput').value);
+        }
+
+        async function do_the_thing(url) {
 
             try {
-                const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(value)}`);
+                const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`);
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! Status: ${response.status} while fetching https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)} (${url})`);
                 }
 
                 const data = await response.text();
 
                 if (data.toLowerCase().includes('<!doctype html')) {
                     document.getElementById('inputContainer').remove();
-                    alert(document.querySelector('body').innerHTML);
+                    document.body.innerHTML = data;
+
+                    const script = document.createElement('script');
+                    script.src = 'otherhandling.js';
+                    document.head.appendChild(script);
+
+                } else {
+                    throw new Error(`Unexpected response format (${response.text})`);
                 }
 
 
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                console.error('Error:', error);
             }
         }
     </script>
 </head>
 
 <body>
-    <div id="inputContainer">
-        <input type="text" id="userInput" placeholder="Enter your query">
+    <div id="inputContainer" style="font-family: Arial, Helvetica, sans-serif;">
+
+        <input type="text" id="userInput" placeholder="Enter website" value='' />
         <button onclick="handleSubmit()">Submit</button>
+
+        <style>
+            #userInput {
+                width: 300px;
+                padding: 10px;
+                margin-right: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+
+            button {
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #45a049;
+            }
+        </style>
     </div>
 </body>
 
