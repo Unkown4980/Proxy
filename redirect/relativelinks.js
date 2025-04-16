@@ -16,44 +16,41 @@ function isValidUrl(url) {
 }
 
 if (decodedUrl && isValidUrl(decodedUrl)) {
-    // Step 2: Find all relative src and href links in the <head> and <body>
-    const elements = Array.from(document.querySelectorAll('head [src], head [href], body [src], body [href]'));
-    console.log('Elements with [src] or [href] in <head> and <body>:', elements);
+    // Step 2: Find all relative src, href, onclick, and other attributes in the <head> and <body>
+    const elements = Array.from(document.querySelectorAll('head [src], head [href], head [onclick], head [action], head [data-*], head [background], head [poster], head [cite], head [longdesc], head [profile], body [src], body [href], body [onclick], body [action], body [data-*], body [background], body [poster], body [cite], body [longdesc], body [profile]'));
+    console.log('Elements with attributes that could use relative links in <head> and <body>:', elements);
     const relativeLinks = elements.filter(element => {
-        const attr = element.hasAttribute('src') ? 'src' : 'href';
-        const value = element.getAttribute(attr);
-        // Skip absolute URLs, data links, and JavaScript links
-        return value && !value.startsWith('http://') && !value.startsWith('https://') && !value.startsWith('//') && !value.startsWith('data:') && !value.startsWith('javascript:');
+        const attrs = ['src', 'href', 'onclick', 'action', 'background', 'poster', 'cite', 'longdesc', 'profile'];
+        return attrs.some(attr => {
+            if (element.hasAttribute(attr)) {
+                const value = element.getAttribute(attr);
+                // Skip absolute URLs, data links, and JavaScript links
+                return value && !value.startsWith('http://') && !value.startsWith('https://') && !value.startsWith('//') && !value.startsWith('data:') && !value.startsWith('javascript:');
+            }
+            return false;
+        });
     });
     console.log('Found relative links:', relativeLinks);
 
     relativeLinks.forEach(element => {
-        const attr = element.hasAttribute('src') ? 'src' : 'href';
-        const value = element.getAttribute(attr);
+        const attrs = ['src', 'href', 'onclick', 'action', 'background', 'poster', 'cite', 'longdesc', 'profile'];
+        attrs.forEach(attr => {
+            if (element.hasAttribute(attr)) {
+                const value = element.getAttribute(attr);
 
-        console.log(`Processing element:`, element);
-        console.log(`Current ${attr} value:`, value);
+                console.log(`Processing element:`, element);
+                console.log(`Current ${attr} value:`, value);
 
-        // Handle lazy-loaded images with data-src
-        if (attr === 'src' && element.hasAttribute('data-src')) {
-            const dataSrcValue = element.getAttribute('data-src');
-            console.log(`Found data-src attribute with value:`, dataSrcValue);
-
-            if (dataSrcValue && !dataSrcValue.startsWith('http://') && !dataSrcValue.startsWith('https://') && !dataSrcValue.startsWith('//')) {
-                const absoluteDataSrcValue = new URL(dataSrcValue, decodedUrl).href;
-                element.setAttribute('data-src', absoluteDataSrcValue);
-                console.log(`Updated data-src: ${dataSrcValue} -> ${absoluteDataSrcValue}`);
+                // Update the attribute only if it's relative
+                if (value && !value.startsWith('http://') && !value.startsWith('https://') && !value.startsWith('//') && !value.startsWith('data:') && !value.startsWith('javascript:')) {
+                    const absoluteValue = new URL(value, decodedUrl).href;
+                    element.setAttribute(attr, absoluteValue);
+                    console.log(`Updated ${attr}: ${value} -> ${absoluteValue}`);
+                } else if (value && (value.startsWith('http://') || value.startsWith('https://'))) {
+                    console.log(`No update needed for ${attr}:`, value);
+                }
             }
-        }
-
-        // Update the main attribute (src or href) only if it's relative
-        if (value && !value.startsWith('http://') && !value.startsWith('https://') && !value.startsWith('//') && !value.startsWith('data:') && !value.startsWith('javascript:')) {
-            const absoluteValue = new URL(value, decodedUrl).href;
-            element.setAttribute(attr, absoluteValue);
-            console.log(`Updated ${attr}: ${value} -> ${absoluteValue}`);
-        } else if (value && (value.startsWith('http://') || value.startsWith('https://'))) {
-            console.log(`No update needed for ${attr}:`, value);
-        }
+        });
     });
 } else {
     if (!decodedUrl) {
