@@ -27,11 +27,16 @@
                 const data = await response.text();
 
                 if (data.toLowerCase().includes('<!doctype html')) {
-                    document.body.innerHTML = data;
+                    
+                    const bodydata = data.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1] || '';
+                    const headdata = data.match(/<head[^>]*>([\s\S]*?)<\/head>/i)?.[1] || '';
+
+                    document.body.innerHTML += bodydata;
+                    document.head.innerHTML += headdata;
+
                     injectscript('linkhandling.js');
                     injectscript('relativelinks.js');
                 } 
-
 
             } catch (error) {
                 console.error('Error:', error);
@@ -39,11 +44,13 @@
         }
 
         function injectscript(src){
+            var absolutesrc = new URL(src, window.location.href).href; 
             const script = document.createElement('script');
-            script.src = src;
+            script.src = absolutesrc;
             document.head.appendChild(script);
         }
     </script>
+    <!-- End of Leftover Html -->
 </head>
 
 <body>

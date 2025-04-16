@@ -1,6 +1,9 @@
 // Step 1: Get all URL parameters and decode the "url" parameter
 const params = new URLSearchParams(window.location.search);
-const decodedUrl = 'http://' + decodeURIComponent(params.get('url') || '');
+let decodedUrl = decodeURIComponent(params.get('url') || '');
+if (decodedUrl && !decodedUrl.startsWith('http://') && !decodedUrl.startsWith('https://')) {
+    decodedUrl = 'http://' + decodedUrl;
+}
 console.log('Decoded URL:', decodedUrl);
 
 function isValidUrl(url) {
@@ -13,10 +16,10 @@ function isValidUrl(url) {
 }
 
 if (decodedUrl && isValidUrl(decodedUrl)) {
-    // Step 2: Find all relative src and href links in the <body>
-    const bodyElements = Array.from(document.querySelectorAll('body [src], body [href]'));
-    console.log('Body elements with [src] or [href]:', bodyElements);
-    const relativeLinks = bodyElements.filter(element => {
+    // Step 2: Find all relative src and href links in the <head> and <body>
+    const elements = Array.from(document.querySelectorAll('head [src], head [href], body [src], body [href]'));
+    console.log('Elements with [src] or [href] in <head> and <body>:', elements);
+    const relativeLinks = elements.filter(element => {
         const attr = element.hasAttribute('src') ? 'src' : 'href';
         const value = element.getAttribute(attr);
         // Skip absolute URLs, data links, and JavaScript links
@@ -48,7 +51,7 @@ if (decodedUrl && isValidUrl(decodedUrl)) {
             const absoluteValue = new URL(value, decodedUrl).href;
             element.setAttribute(attr, absoluteValue);
             console.log(`Updated ${attr}: ${value} -> ${absoluteValue}`);
-        } else {
+        } else if (value && (value.startsWith('http://') || value.startsWith('https://'))) {
             console.log(`No update needed for ${attr}:`, value);
         }
     });
