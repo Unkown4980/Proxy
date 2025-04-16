@@ -5,49 +5,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Better Proxy Interface</title>
+    <link rel="stylesheet" href="index.css">
     <script>
-        async function handleSubmit(url) {
+        function handleSubmit(url) {
             window.location.href = 'redirect/index.html?url=' + encodeURIComponent(url);
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const userInput = document.getElementById('userInput');
+
+            // Load saved input from localStorage
+            const savedInput = localStorage.getItem('userInput');
+            if (savedInput) {
+                userInput.value = savedInput;
+            }
+
+            // Save input to localStorage on edit
+            userInput.addEventListener('input', function () {
+                localStorage.setItem('userInput', userInput.value);
+            });
+
+            userInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    handleSubmit(userInput.value);
+                }
+            });
+        });
     </script>
 </head>
 
 <body>
-    <div id="inputContainer" style="font-family: Arial, Helvetica, sans-serif;">
-
+    <div id="inputContainer">
         <input type="text" id="userInput" placeholder="Enter website" value='' />
         <button onclick="handleSubmit(document.getElementById('userInput').value)">Submit</button>
-
-<p>Warning: Use this proxy at your own risk!</p>
-<p>This proxy uses another website to route traffic. Some features of the website, like cookies, will be unusable.</p>
-<p>This proxy is intended for basic browsing purposes only. Ensure you do not share sensitive information while using it.</p>
-<p>This proxy may not work with all websites, especially those with advanced security measures or heavy reliance on JavaScript.</p>
-<p>Ensure you comply with the terms of service of the websites you access through this proxy.</p>
-
-        <style>
-            #userInput {
-                width: 300px;
-                padding: 10px;
-                margin-right: 10px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                font-size: 16px;
-            }
-
-            button {
-                padding: 10px 20px;
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-size: 16px;
-                cursor: pointer;
-            }
-
-            button:hover {
-                background-color: #45a049;
-            }
-        </style>
+        <p>Warning: Use this proxy at your own risk!</p>
+        <p>This proxy uses another website to route traffic. Some features of the website, like cookies, will be
+            unusable.</p>
+        <p>This proxy is intended for basic browsing purposes only. Ensure you do not share sensitive information while
+            using it.</p>
+        <p>This proxy may not work with all websites, especially those with advanced security measures or heavy reliance
+            on JavaScript.</p>
+        <p>Ensure you comply with the terms of service of the websites you access through this proxy.</p>
     </div>
 </body>
 
