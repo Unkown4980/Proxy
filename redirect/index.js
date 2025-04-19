@@ -10,10 +10,10 @@ if (url) {
     do_the_thing(url);
 }
 
-async function do_the_thing(url) {
+async function do_the_thing(URL) {
 
     try {
-        const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${url}`);
+        const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${URL}`);
 
         const data = await response.text();
 
